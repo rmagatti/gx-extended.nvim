@@ -1,0 +1,28 @@
+# ignore compiled Lua files
+*.lua~
+
+# ignore compiled Vim script files
+*.vim~
+
+# ignore Neovim swap files
+*.swp
+
+# ignore Neovim backup files
+*.bak
+
+# ignore Neovim undo files
+*.un~
+
+# ignore Neovim session files
+Session.vim
+
+# ignore Neovim message files
+messages.vim
+
+# ignore the plugin directory (it can be generated during install)
+plugin/
+
+# ignore any files generated during development or testing
+tmp/
+node_modules/
+
