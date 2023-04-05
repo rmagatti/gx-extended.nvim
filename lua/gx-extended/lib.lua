@@ -1,9 +1,14 @@
 local user_clipboard = nil
 local user_register = nil
 local user_register_mode = nil
-local logger = require("gx-extended.logger")
+
+local logger = require("gx-extended.logger"):new({ log_level = vim.log.levels.INFO })
 
 local M = {}
+
+function M.setup(config)
+	logger.log_level = config.log_level
+end
 
 --- Saves the current state of the clipboard and register, and clears the clipboard for later use.
 local function snapshot_and_clean()
@@ -31,7 +36,7 @@ local function run_bypassing_clipboard(fn)
 	return to_return
 end
 
-local autocmd_group = vim.api.nvim_create_augroup("gx-extended", {
+local group = vim.api.nvim_create_augroup("gx-extended", {
 	clear = false,
 })
 
@@ -44,15 +49,15 @@ local autocmd_group = vim.api.nvim_create_augroup("gx-extended", {
 --- Registers an autocmd that opens GitHub URLs in the netrw file explorer.
 --- @param options register_options: A table containing the following keys:
 function M.register(options)
-	local event = options.event or { "BufEnter" }
+	local events = options.event or { "BufEnter" }
 	local autocmd_pattern = options.autocmd_pattern
 	local pattern_to_match = options.pattern_to_match
 	local match_to_url = options.match_to_url
 	local yank_cmd = options.yank_cmd or 'normal! yi"'
 
-	vim.api.nvim_create_autocmd(event, {
+	vim.api.nvim_create_autocmd(events, {
 		pattern = autocmd_pattern,
-		group = autocmd_group,
+		group = group,
 		callback = function()
 			vim.keymap.set({ "n", "v" }, "gx", function()
 				run_bypassing_clipboard(function()
@@ -76,9 +81,36 @@ function M.register(options)
 					end
 
 					local url = match_to_url(yanked_string)
-					print(url)
+          logger.debug("Opening URL: " .. url)
 					vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
 				end)
+			end, {})
+		end,
+	})
+end
+
+function M.register_line(options)
+	local events = options.event or { "BufEnter" }
+	local autocmd_pattern = options.autocmd_pattern
+	local match_to_url = options.match_to_url
+
+	vim.api.nvim_create_autocmd(events, {
+		pattern = autocmd_pattern,
+		group = group,
+		callback = function()
+			vim.keymap.set("n", "gx", function()
+				local line_string = vim.api.nvim_get_current_line()
+
+				local success, url = pcall(match_to_url, line_string)
+
+				if not url or not success then
+					logger.info("Could not match custom gx-extended pattern, calling default gx")
+
+					vim.cmd([[execute "normal \<Plug>NetrwBrowseX"]])
+					return
+				end
+
+				vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
 			end, {})
 		end,
 	})

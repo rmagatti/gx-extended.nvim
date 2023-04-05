@@ -41,7 +41,7 @@ end
 --- @param ... string|table: The message(s) to print.
 function L:debug(...)
 	if self.log_level == "debug" or self.log_level == vim.log.levels.DEBUG then
-		vim.notify(vim.fn.join({ plugin_name .. "DEBUG:", to_print(...) }, " "), vim.log.levels.DEBUG)
+		vim.notify(vim.fn.join({ plugin_name .. " DEBUG:", to_print(...) }, " "), vim.log.levels.DEBUG)
 	end
 end
 
@@ -51,7 +51,7 @@ function L:info(...)
 	local valid_values = { "info", "debug", vim.log.levels.DEBUG, vim.log.levels.INFO }
 
 	if vim.tbl_contains(valid_values, self.log_level) then
-		vim.notify(vim.fn.join({ plugin_name .. "INFO:", to_print(...) }, " "), vim.log.levels.INFO)
+		vim.notify(vim.fn.join({ plugin_name .. " INFO:", to_print(...) }, " "), vim.log.levels.INFO)
 	end
 end
 
@@ -61,14 +61,14 @@ function L:warn(...)
 	local valid_values = { "info", "debug", "warn", vim.log.levels.DEBUG, vim.log.levels.INFO, vim.log.levels.WARN }
 
 	if vim.tbl_contains(valid_values, self.log_level) then
-		vim.notify(vim.fn.join({ plugin_name .. "WARN:", to_print(...) }, " "), vim.log.levels.WARN)
+		vim.notify(vim.fn.join({ plugin_name .. " WARN:", to_print(...) }, " "), vim.log.levels.WARN)
 	end
 end
 
 --- Writes a debug message to vim.notify, if the current log level is "debug".
 --- @param ... string|table: The message(s) to print.
 function L:error(...)
-	vim.notify(vim.fn.join({ plugin_name .. "ERROR:", to_print(...) }, " "), vim.log.levels.ERROR)
+	vim.notify(vim.fn.join({ plugin_name .. " ERROR:", to_print(...) }, " "), vim.log.levels.ERROR)
 end
 
-return L:new()
+return L
