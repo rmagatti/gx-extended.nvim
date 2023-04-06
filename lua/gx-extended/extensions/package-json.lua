@@ -9,7 +9,7 @@ function M.setup(config)
 		match_to_url = function(line_string)
 			local line = string.match(line_string, '".*":.*".*"')
 			local pkg = vim.split(line, ":")[1]:gsub('"', "")
-			local url = pkg and "https://www.npmjs.com/package/" .. pkg or nil
+			local url = "https://www.npmjs.com/package/" .. pkg
 
 			return url
 		end,
