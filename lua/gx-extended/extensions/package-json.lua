@@ -4,7 +4,7 @@ function M.setup(config)
 	local lib = require("gx-extended.lib")
 	lib.setup(config)
 
-	lib.register_line({
+	lib.register({
 		autocmd_pattern = { "package.json" },
 		match_to_url = function(line_string)
 			local line = string.match(line_string, '".*":.*".*"')

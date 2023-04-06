@@ -1,12 +1,12 @@
-⭐ gx-extended.nvim
+# ⭐ GX Extended
 
-A Neovim plugin that extends the functionality of the gx command and allows for some custom settings.
+A Neovim plugin that extends the functionality of the gx command.
 
-🚀 Showcase
+## 🚀 Showcase
 
 [Insert showcase here, if applicable.]
 
-📦 Installation
+## 📦 Installation
 
 ```lua
 use {
@@ -17,3 +17,5 @@ use {
 }
 ```
 
+## TODOs
+- Implement `visual` mode

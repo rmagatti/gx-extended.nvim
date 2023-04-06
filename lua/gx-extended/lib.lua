@@ -40,15 +40,7 @@ local group = vim.api.nvim_create_augroup("gx-extended", {
 	clear = false,
 })
 
---- @class register_options
---- @field event table | nil: (Optional) The name of the event to attach the autocmd to (e.g. "BufRead"). Defaults to {"BufEnter"}.
---- @field autocmd_pattern string: The pattern to match for the autocmd (e.g. "*.txt").
---- @field pattern_to_match string: The pattern to match in the yanked text (e.g. "^%w+/%w+").
---- @field match_to_url function: The pattern to match in the yanked text (e.g. "^%w+/%w+").
---- @field yank_cmd string: The pattern to match in the yanked text (e.g. "^%w+/%w+").
---- Registers an autocmd that opens GitHub URLs in the netrw file explorer.
---- @param options register_options: A table containing the following keys:
-function M.register(options)
+function M.register_legacy(options)
 	local events = options.event or { "BufEnter" }
 	local autocmd_pattern = options.autocmd_pattern
 	local pattern_to_match = options.pattern_to_match
@@ -89,7 +81,7 @@ function M.register(options)
 	})
 end
 
-function M.register_line(options)
+function M.register(options)
 	local events = options.event or { "BufEnter" }
 	local autocmd_pattern = options.autocmd_pattern
 	local match_to_url = options.match_to_url

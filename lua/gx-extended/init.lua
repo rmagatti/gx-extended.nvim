@@ -1,21 +1,27 @@
 local M = {
 	config = {
 		log_level = vim.log.levels.INFO,
+		extensions = {},
+		legacy_extensions = {},
 	},
 }
 
---- @class setup_options
---- @param config setup_options
 function M.setup(config)
+	--- Merge the user-provided configuration with the default configuration.
 	M.config = vim.tbl_deep_extend("force", M.config, config or {})
 	local lib = require("gx-extended.lib")
 	lib.setup(config)
 
-  --- Setup builtin extensions
+	--- Setup builtin extensions
 	require("gx-extended.extensions.package-json").setup(config)
 	require("gx-extended.extensions.packer-plugins").setup(config)
 
+	--- Setup user extensions
+	require("gx-extended.extensions.user-extensions").setup(config)
+
+	--- Expose the register function from gx-extended.lib.
 	M.register = lib.register
+	M.register_legacy = lib.register_legacy
 end
 
 return M
