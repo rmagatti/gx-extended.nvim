@@ -1,6 +1,11 @@
-# ⭐ GX Extended
+# ⭐ gx-extended.nvim
 
 A Neovim plugin that extends the functionality of the gx mapping.
+In Neovim, the `gx` mapping in normal mode allows you to navigate to the url under the cursor. This plugin extends that behaviour to more than just urls.
+
+## 🎉 Built-in Features
+- `package.json` - `gx` when cursor is under an npm dependency, nagivates to _https://www.npmjs.com/package/[packageName]_
+- `plugins.lua` - In packer.nvim's convention `plugins.lua` file, `gx` when cursor is under an npm dependency, nagivates to _https://github.com/[user/org]/[repo]_
 
 ## 🚀 Showcase
 With a custom extension for opening the registry docs for aws terraform resources
