@@ -1,9 +1,16 @@
-# ⭐ GX Extended
+# ⭐ gx-extended.nvim
 
 A Neovim plugin that extends the functionality of the gx mapping.
+In Neovim, the `gx` mapping in normal mode allows you to navigate to the url under the cursor. This plugin extends that behaviour to more than just urls.
+
+## 🎉 Built-in Features
+- `package.json` - `gx` when cursor is under an npm dependency, nagivates to _https://www.npmjs.com/package/[packageName]_
+- `plugins.lua` - In packer.nvim's convention `plugins.lua` file, `gx` when cursor is under an npm dependency, nagivates to _https://github.com/[user/org]/[repo]_
+- `*.tf` - In a [terraform](https://www.terraform.io/) file, `gx` when cursor is under a [terraform resource definition](https://developer.hashicorp.com/terraform/language/resources) nagivates to _https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/[resourceName]_
+- `*` - In any file, `gx` navigates to no-protocol-urls like `google.com`, `docs.google.com`, etc.
 
 ## 🚀 Showcase
-With a custom extension for opening the registry docs for aws terraform resources
+Opening the registry docs for aws terraform resources
 
 https://user-images.githubusercontent.com/2881382/230259520-c2e84260-4e79-47ff-9c40-62a5162b15c0.mov
 
@@ -30,6 +37,7 @@ use {
   config = function()
     require("gx-extended").setup {
       extensions = {
+      -- Do not create this extension, the terraform resource setup is already built-into the plugin. This is merely an example of a user-defined extension.
         {
           autocmd_pattern = { "*.tf" },
           match_to_url = function(line_string)
@@ -46,3 +54,6 @@ use {
 
 ## TODOs
 - Implement `visual` mode
+
+### Inspiration/Alternatives
+https://github.com/stsewd/gx-extended.vim

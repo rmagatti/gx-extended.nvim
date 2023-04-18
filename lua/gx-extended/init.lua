@@ -15,13 +15,14 @@ function M.setup(config)
 	--- Setup builtin extensions
 	require("gx-extended.extensions.package-json").setup(config)
 	require("gx-extended.extensions.packer-plugins").setup(config)
+	require("gx-extended.extensions.terraform-aws-resources").setup(config)
+	require("gx-extended.extensions.no-protocol-urls").setup(config)
 
 	--- Setup user extensions
 	require("gx-extended.extensions.user-extensions").setup(config)
 
 	--- Expose the register function from gx-extended.lib.
 	M.register = lib.register
-	M.register_legacy = lib.register_legacy
 end
 
 return M
