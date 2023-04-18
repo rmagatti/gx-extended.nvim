@@ -54,3 +54,6 @@ use {
 
 ## TODOs
 - Implement `visual` mode
+
+### Inspiration/Alternatives
+https://github.com/stsewd/gx-extended.vim
