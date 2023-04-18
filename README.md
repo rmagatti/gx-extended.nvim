@@ -10,7 +10,7 @@ In Neovim, the `gx` mapping in normal mode allows you to navigate to the url und
 - `*` - In any file, `gx` navigates to no-protocol-urls like `google.com`, `docs.google.com`, etc.
 
 ## 🚀 Showcase
-With a custom extension for opening the registry docs for aws terraform resources
+Opening the registry docs for aws terraform resources
 
 https://user-images.githubusercontent.com/2881382/230259520-c2e84260-4e79-47ff-9c40-62a5162b15c0.mov
 
