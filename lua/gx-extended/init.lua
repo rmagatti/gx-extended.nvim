@@ -16,6 +16,7 @@ function M.setup(config)
 	require("gx-extended.extensions.package-json").setup(config)
 	require("gx-extended.extensions.packer-plugins").setup(config)
 	require("gx-extended.extensions.terraform-aws-resources").setup(config)
+	require("gx-extended.extensions.no-protocol-urls").setup(config)
 
 	--- Setup user extensions
 	require("gx-extended.extensions.user-extensions").setup(config)
