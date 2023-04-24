@@ -11,6 +11,8 @@ function M.setup(config)
 			local repo = vim.split(line, ":")[1]:gsub('"', "")
 			local url = "https://github.com/" .. repo
 
+      print("blaaaaaaaaaaa")
+
 			return url
 		end,
 	})
