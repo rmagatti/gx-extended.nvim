@@ -37,6 +37,12 @@ function L:new(obj_and_config)
 	return obj_and_config
 end
 
+--- Sets the log level for the logger instance
+--- @param log_level string|number: The log level to set. Can be a string or a vim.log.levels enum value.
+function L:set_log_level(log_level)
+	self.log_level = log_level
+end
+
 --- Writes a debug message to vim.notify, if the current log level is "debug".
 --- @param ... string|table: The message(s) to print.
 function L:debug(...)

@@ -2,67 +2,81 @@ local logger = require("gx-extended.logger"):new({ log_level = vim.log.levels.IN
 
 local M = {}
 
-function M.setup(config)
-  logger.log_level = config.log_level
+local registry = {}
+
+local function run_match_to_urls()
+	local line_string = vim.api.nvim_get_current_line()
+	local url, matched_pattern = nil, nil
+
+	local current_file = vim.fn.expand("%:t")
+
+	for file_pattern, _ in pairs(registry) do
+		local match = string.match(current_file, file_pattern)
+
+		if match then
+			logger.debug(
+				"Found match for current file pattern",
+				{ current_file = current_file, file_pattern = file_pattern, match = match }
+			)
+
+			matched_pattern = file_pattern
+		end
+	end
+
+	if matched_pattern then
+		for _, pattern_value in ipairs(registry[matched_pattern]) do
+			logger.debug("pattern_value", pattern_value)
+
+			local pcall_succeeded, _return = pcall(pattern_value.match_to_url, line_string)
+			url = pcall_succeeded and _return or nil
+
+			logger.debug("match_to_url called", {
+				line_string = line_string,
+				success = pcall_succeeded,
+				url = url,
+				pattern_value = pattern_value,
+			})
+
+			if url then
+				vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
+				break
+			end
+		end
+	end
+
+	if not url then
+		logger.debug("Could not match custom gx-extended pattern, calling default gx")
+
+		vim.cmd([[execute "normal \<Plug>NetrwBrowseX"]])
+		return
+	end
 end
 
-local group = vim.api.nvim_create_augroup("gx-extended", {
-  clear = true,
-})
+function M.setup(config)
+	logger.set_log_level(config.log_level)
 
----The per_pattern table should look like this:
----local per_pattern = {
----	["*.tf"] = {
----		{
----			match_to_url = function() ... end,
----		},
----	},
----}
-local per_pattern = {}
+	vim.keymap.set("n", "gx", run_match_to_urls, {})
+end
 
 function M.register(options)
-  local events = options.event or { "BufEnter" }
-  local autocmd_pattern = options.autocmd_pattern
-  local match_to_url = options.match_to_url
+	local patterns = options.patterns
+	local match_to_url = options.match_to_url
 
-  -- Line up match_to_url functions for the same pattern so they are all executed when the autocmd is triggered
-  for _, value in pairs(autocmd_pattern) do
-    if not per_pattern[value] then
-      per_pattern[value] = {}
-    end
+	for _, pattern in ipairs(patterns) do
+		if not registry[pattern] then
+			registry[pattern] = {}
+		end
 
-    table.insert(per_pattern[value], { match_to_url = match_to_url })
-  end
+		table.insert(registry[pattern], {
+			match_to_url = match_to_url,
+		})
+	end
 
-  vim.api.nvim_create_autocmd(events, {
-    pattern = autocmd_pattern,
-    group = group,
-    callback = function()
-      vim.keymap.set("n", "gx", function()
-        local line_string = vim.api.nvim_get_current_line()
-
-        local success, url = nil, nil
-
-        for _, ptrn in pairs(autocmd_pattern) do
-          for _, value in pairs(per_pattern[ptrn]) do
-            success, url = pcall(value.match_to_url, line_string)
-
-            if success then
-              vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
-              return
-            end
-          end
-        end
-
-        if not success then
-          logger.info("Could not match custom gx-extended pattern, calling default gx")
-
-          vim.cmd([[execute "normal \<Plug>NetrwBrowseX"]])
-          return
-        end
-      end, {})
-    end,
-  })
+	logger.debug("registering", {
+		patterns = patterns,
+		match_to_url = match_to_url,
+		registry = registry,
+	})
 end
 
 return M

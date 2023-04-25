@@ -1,14 +1,30 @@
 local M = {}
 
 function M.setup(config)
-	local lib = require("gx-extended.lib")
-	lib.setup(config)
-
-	lib.register({
-		autocmd_pattern = { "*" },
+	require("gx-extended.lib").register({
+		patterns = { "*" },
 		match_to_url = function(line_string)
-			local domain, rest = string.match(line_string, '([%w-_]+%.%w+%.?%w*%.?%w*)/?(.*)')
-      local url = "https://" .. domain .. "/" .. rest
+			local patterns_with_http_s = "(https?://[a-zA-Z0-9_/%-%.~@\\+#=?&]+)"
+			local patterns_without_http_s = "([a-zA-Z0-9_/%-%.~@\\+#]+%.[a-zA-Z0-9_/%-%.~@\\+#%=?&]+)"
+
+			local url = string.match(line_string, patterns_with_http_s)
+
+			-- Validate that it starts with a valid-ish domain
+			if url and not string.match(url, "https?://%S+%.%S+%.[%w%.]+/?.*") then
+				return nil
+			end
+
+			if not url then
+				url = string.match(line_string, patterns_without_http_s)
+				-- Validate that it starts with a valid-ish domain
+				if not string.match(url, "%S+%.%S+%.[%w%.]+/?.*") then
+					return nil
+				end
+
+				if url then
+					url = "https://" .. url
+				end
+			end
 
 			return url
 		end,
