@@ -55,30 +55,25 @@ end
 function M.setup(config)
 	logger.set_log_level(config.log_level)
 
-	logger.info("after config", {
-		config = config,
-		logger_log_level = logger.log_level,
-	})
-
 	vim.keymap.set("n", "gx", run_match_to_urls, {})
 end
 
 function M.register(options)
-	local file_pattern_list = options.autocmd_pattern
+	local patterns = options.patterns
 	local match_to_url = options.match_to_url
 
-	for _, file_pattern in ipairs(file_pattern_list) do
-		if not registry[file_pattern] then
-			registry[file_pattern] = {}
+	for _, pattern in ipairs(patterns) do
+		if not registry[pattern] then
+			registry[pattern] = {}
 		end
 
-		table.insert(registry[file_pattern], {
+		table.insert(registry[pattern], {
 			match_to_url = match_to_url,
 		})
 	end
 
-	logger.debug({
-		autocmd_pattern = file_pattern_list,
+	logger.debug("registering", {
+		patterns = patterns,
 		match_to_url = match_to_url,
 		registry = registry,
 	})

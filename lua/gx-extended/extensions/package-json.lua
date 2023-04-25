@@ -15,7 +15,7 @@ end
 
 function M.setup(config)
   require("gx-extended.lib").register({
-    autocmd_pattern = { "package.json" },
+    patterns = { "package.json" },
     match_to_url = match_to_url,
   })
 end

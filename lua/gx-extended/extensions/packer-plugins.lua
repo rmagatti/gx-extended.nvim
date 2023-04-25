@@ -2,7 +2,7 @@ local M = {}
 
 function M.setup(config)
 	require("gx-extended.lib").register({
-		autocmd_pattern = { "plugins.lua" },
+		patterns = { "plugins.lua" },
 		match_to_url = function(line_string)
 			local line = string.match(line_string, "[\"|'].*/.*[\"|']")
 			local repo = vim.split(line, ":")[1]:gsub('"', "")
