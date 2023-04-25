@@ -1,10 +1,7 @@
 local M = {}
 
 function M.setup(config)
-  local lib = require("gx-extended.lib")
-  lib.setup(config)
-
-  lib.register({
+  require("gx-extended.lib").register({
     autocmd_pattern = { "*.tf" },
     match_to_url = function(line_string)
       local resource_name = string.match(line_string, 'resource "aws_([^"]*)"')
