@@ -4,6 +4,11 @@ local M = {}
 
 local registry = {}
 
+-- override with config.open_fn
+local function open_fn(url)
+  vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
+end
+
 local function run_match_to_urls()
 	local line_string = vim.api.nvim_get_current_line()
 	local url, matched_pattern = nil, nil
@@ -38,7 +43,7 @@ local function run_match_to_urls()
 			})
 
 			if url then
-				vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
+        open_fn(url)
 				break
 			end
 		end
@@ -55,6 +60,9 @@ end
 function M.setup(config)
 	logger.set_log_level(config.log_level)
 
+  if config.open_fn then
+    open_fn = config.open_fn
+  end
 	vim.keymap.set("n", "gx", run_match_to_urls, {})
 end
 
