@@ -13,18 +13,19 @@ local function run_match_to_urls()
 	local line_string = vim.api.nvim_get_current_line()
 	local url, matched_pattern = nil, nil
 
-	local current_file = vim.fn.expand("%:t")
+	local current_file = vim.fn.expand("%")
 
-	for file_pattern, _ in pairs(registry) do
-		local match = string.match(current_file, file_pattern)
+	for file_glob, _ in pairs(registry) do
+    local file_pattern = vim.fn.glob2regpat(file_glob)
+		local match = vim.fn.matchstr(current_file, file_pattern)
 
-		if match then
+		if match ~= '' then
 			logger.debug(
 				"Found match for current file pattern",
 				{ current_file = current_file, file_pattern = file_pattern, match = match }
 			)
 
-			matched_pattern = file_pattern
+			matched_pattern = file_glob
 		end
 	end
 
@@ -38,7 +39,7 @@ local function run_match_to_urls()
 			logger.debug("match_to_url called", {
 				line_string = line_string,
 				success = pcall_succeeded,
-				url = url,
+				url = url or 'nil',
 				pattern_value = pattern_value,
 			})
 
