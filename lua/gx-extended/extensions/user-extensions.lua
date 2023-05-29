@@ -10,7 +10,7 @@ function M.setup(config)
 			local success, _ = pcall(lib.register, registration)
 
 			if not success then
-				logger.warn("Failed to register gx-extended autocmd for " .. registration.pattern)
+				logger.warn("Failed to register gx-extended autocmd for " .. registration.patterns)
 			end
 		end
 	end)
