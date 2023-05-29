@@ -27,7 +27,8 @@ use {
 
 ## ⚙️  Configuring
 You can pass custom extensions to the `extensions` table. Each extension should have at least two properties:
-1. `patterns`, a list of file glob patterns to run the autocomands for
+1. `patterns`, a list of file glob patterns to run the autocomands for.
+    Important: the plugin matches the glob on the file path of the current file now; meaning for example that setting `plugins.lua` won't match correctly but `*plugins.lua` will.
 2. `match_to_url`, a function to run the match and return the composed url to be used by the `gx` command
 
 The following is an example of hitting `gx` on a terraform file on a line where an aws resource is defined and opening your browser directly on the terraform registry documentation for the specific resource.
