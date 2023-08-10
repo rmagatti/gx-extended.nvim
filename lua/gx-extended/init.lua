@@ -9,7 +9,7 @@ local M = {
 function M.setup(config)
   --- Merge the user-provided configuration with the default configuration.
   M.config = vim.tbl_deep_extend("force", M.config, config or {})
-  local lib = require("gx-extended.lib")
+  local lib = require "gx-extended.lib"
   lib.setup(M.config)
 
   --- Setup builtin extensions
