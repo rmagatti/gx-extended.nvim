@@ -14,10 +14,10 @@ local match_to_url = function(line_string)
 end
 
 function M.setup(config)
-  require("gx-extended.lib").register({
+  require("gx-extended.lib").register {
     patterns = { "*package.json" },
     match_to_url = match_to_url,
-  })
+  }
 end
 
 return M

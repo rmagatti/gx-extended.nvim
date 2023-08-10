@@ -1,7 +1,7 @@
 local M = {}
 
 function M.setup(config)
-  require("gx-extended.lib").register({
+  require("gx-extended.lib").register {
     patterns = { "*.tf" },
     match_to_url = function(line_string)
       local resource_name = string.match(line_string, 'resource "aws_([^"]*)"')
@@ -14,7 +14,7 @@ function M.setup(config)
 
       return url
     end,
-  })
+  }
 end
 
 return M

@@ -50,6 +50,7 @@ use {
       },
     }
   end
+}
 ```
 
 By default, gx-extended uses netrw to open urls. You can pass a custom open 
@@ -61,7 +62,6 @@ return { 'rmagatti/gx-extended.nvim',
   keys = { 'gx' },
   opts = {
     open_fn = require'lazy.util'.open,
-    }
   }
 }
 ```
