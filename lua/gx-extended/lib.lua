@@ -75,6 +75,11 @@ local function run_match_to_urls()
           end
         }, function(registration)
           logger.debug("selected", { registration = registration })
+          if not registration then
+            logger.debug("no registration selected")
+            return
+          end
+
           try_open(registration)
         end)
       else
