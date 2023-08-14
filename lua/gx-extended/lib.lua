@@ -10,6 +10,8 @@ local function open_fn(url)
 end
 
 local function run_match_to_urls()
+  logger.debug({ registry = registry })
+
   local line_string = vim.api.nvim_get_current_line()
   local url, matched_patterns = nil, {}
 
@@ -29,37 +31,56 @@ local function run_match_to_urls()
     end
   end
 
+  logger.debug({ matched_patterns = matched_patterns })
+
+
   local keep_going = true
   for _, matched_pattern in ipairs(matched_patterns) do
     if keep_going then
-      for _, extension in ipairs(registry[matched_pattern]) do
-        logger.debug("pattern_value", extension)
+      local registrations = registry[matched_pattern]
 
-        local pcall_succeeded, _return = pcall(extension.match_to_url, line_string)
+      -- TODO: This makes me have to select every time I hit gx. Select only when the result of more than one match_to_url is not nil instead!
+      local try_open = function(registration)
+        logger.debug("pattern_value", registration)
+
+        local pcall_succeeded, _return = pcall(registration.match_to_url, line_string)
         url = pcall_succeeded and _return or nil
 
         logger.debug("match_to_url called", {
           line_string = line_string,
           success = pcall_succeeded,
           url = url or "nil",
-          extension = extension,
+          extension = registration,
         })
 
-        if url ~= nil and url ~= "nil" then
+        if url and url ~= "nil" then
           logger.debug("opening url", { url = url, success = pcall_succeeded })
           open_fn(url)
           keep_going = false
-          break
         end
       end
+
+      if #registrations > 1 then
+        logger.debug("More than 1 handler registered, showing select menu", { registration = registrations })
+
+        local options = {}
+        for _, registration in ipairs(registrations) do
+          table.insert(options, registration)
+        end
+
+        vim.ui.select(options, {
+          prompt = "Multiple patterns matched. Select one:",
+          format_item = function(item)
+            return item.name
+          end
+        }, function(registration)
+          logger.debug("selected", { registration = registration })
+          try_open(registration)
+        end)
+      else
+        try_open(registrations[1])
+      end
     end
-  end
-
-  if not url then
-    logger.debug "Could not match custom gx-extended pattern, calling default gx"
-
-    vim.cmd [[execute "normal \<Plug>NetrwBrowseX"]]
-    return
   end
 end
 
@@ -72,9 +93,16 @@ function M.setup(config)
   vim.keymap.set("n", "gx", run_match_to_urls, {})
 end
 
+---@class RegistrationSpec
+---@field patterns string[] A glob file pattern to match against the current file. See `:help glob()`.
+---@field match_to_url fun(line_string: string): string | nil A function that takes the current line string and returns a url or nil.
+---@field name string | nil A name to show in the select menu when multiple handlers are registered. This will be made required later on.
+
+---@param options RegistrationSpec
 function M.register(options)
   local patterns = options.patterns
   local match_to_url = options.match_to_url
+  local name = options.name
 
   for _, pattern in ipairs(patterns) do
     if not registry[pattern] then
@@ -83,6 +111,7 @@ function M.register(options)
 
     table.insert(registry[pattern], {
       match_to_url = match_to_url,
+      name = name,
     })
   end
 
