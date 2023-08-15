@@ -2,20 +2,33 @@ local logger = require("gx-extended.logger"):new { log_level = vim.log.levels.IN
 
 local M = {}
 
+---@type table<string, RegistrationSpec[]>
 local registry = {}
 
 -- override with config.open_fn
+---@param url string
 local function open_fn(url)
   vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
 end
 
+---@param url string | nil
+local open = function(url)
+  if url and url ~= "nil" then
+    logger.debug("opening url", url)
+    open_fn(url)
+  else
+    logger.info("url is nil, not opening", url)
+  end
+end
+
 local function run_match_to_urls()
-  logger.debug({ registry = registry })
+  logger.debug { registry = registry }
 
   local line_string = vim.api.nvim_get_current_line()
-  local url, matched_patterns = nil, {}
-
-  local current_file = vim.fn.expand "%"
+  local url = nil
+  ---@type string[]
+  local matched_patterns = {}
+  local current_file = vim.fn.expand "%:p"
 
   for file_glob, _ in pairs(registry) do
     local file_pattern = vim.fn.glob2regpat(file_glob)
@@ -26,70 +39,100 @@ local function run_match_to_urls()
         "Found match for current file pattern",
         { current_file = current_file, file_pattern = file_pattern, match = match }
       )
-
       table.insert(matched_patterns, file_glob)
     end
   end
 
-  logger.debug({ matched_patterns = matched_patterns })
+  logger.debug { matched_patterns = matched_patterns }
 
+  ---@param registration RegistrationSpec
+  ---@return string | nil
+  local call_match_to_url = function(registration)
+    logger.debug("pattern_value", registration)
+    local pcall_succeeded, _return = pcall(registration.match_to_url, line_string)
+    url = pcall_succeeded and _return or nil
 
-  local keep_going = true
+    logger.debug("match_to_url called", {
+      line_string = line_string,
+      success = pcall_succeeded,
+      url = url or "nil",
+      extension = registration,
+    })
+
+    if url and url ~= "nil" then
+      return url
+    end
+    return nil
+  end
+
+  local try_open = function(registration)
+    local pcall_succeeded, succeeded_url = call_match_to_url(registration)
+    if pcall_succeeded and succeeded_url then
+      open(succeeded_url)
+    end
+  end
+
+  ---@type RegistrationSpec[]
+  local matched_registrations = {}
+
   for _, matched_pattern in ipairs(matched_patterns) do
-    if keep_going then
-      local registrations = registry[matched_pattern]
+    ---@type RegistrationSpec[]
+    local registrations = registry[matched_pattern]
+    for _, registration in ipairs(registrations) do
+      table.insert(matched_registrations, registration)
+    end
+  end
 
-      -- TODO: This makes me have to select every time I hit gx. Select only when the result of more than one match_to_url is not nil instead!
-      local try_open = function(registration)
-        logger.debug("pattern_value", registration)
+  if #matched_registrations > 1 then
+    logger.debug("More than 1 handler registered, showing select menu", { registration = matched_registrations })
 
-        local pcall_succeeded, _return = pcall(registration.match_to_url, line_string)
-        url = pcall_succeeded and _return or nil
+    ---@class SucceededRegistration
+    ---@field registration RegistrationSpec
+    ---@field url string
 
-        logger.debug("match_to_url called", {
-          line_string = line_string,
-          success = pcall_succeeded,
-          url = url or "nil",
-          extension = registration,
-        })
+    ---@type SucceededRegistration[]
+    local succeeded_urls = {}
+    for _, registration in ipairs(matched_registrations) do
+      local succeeded_url = call_match_to_url(registration)
 
-        if url and url ~= "nil" then
-          logger.debug("opening url", { url = url, success = pcall_succeeded })
-          open_fn(url)
-          keep_going = false
-        end
-      end
-
-      if #registrations > 1 then
-        logger.debug("More than 1 handler registered, showing select menu", { registration = registrations })
-
-        local options = {}
-        for _, registration in ipairs(registrations) do
-          table.insert(options, registration)
-        end
-
-        vim.ui.select(options, {
-          prompt = "Multiple patterns matched. Select one:",
-          format_item = function(item)
-            return item.name
-          end
-        }, function(registration)
-          logger.debug("selected", { registration = registration })
-          if not registration then
-            logger.debug("no registration selected")
-            return
-          end
-
-          try_open(registration)
-        end)
-      else
-        try_open(registrations[1])
+      if succeeded_url then
+        table.insert(succeeded_urls, { registration = registration, url = succeeded_url })
       end
     end
+
+    if #succeeded_urls == 0 then
+      logger.info("No registrations succeeded")
+      return
+    end
+
+    if #succeeded_urls == 1 then
+      logger.debug("Only 1 registration succeeded, opening", { succeeded_url = succeeded_urls[1] })
+      open(succeeded_urls[1].url)
+      return
+    end
+
+    vim.ui.select(succeeded_urls, {
+      prompt = "Multiple patterns matched. Select one:",
+      format_item = function(item)
+        return item.registration.name or vim.inspect(item.registration.patterns)
+      end,
+      ---@param succeeded_url SucceededRegistration
+    }, function(succeeded_url)
+      logger.debug("Selected", { succeeded_url = succeeded_url })
+      if not succeeded_url then
+        logger.debug "No registration selected"
+        return
+      end
+
+      open(succeeded_url.url)
+    end)
+  else
+    try_open(matched_registrations[1])
   end
 end
 
 function M.setup(config)
+  ---@diagnostic disable-next-line: missing-parameter
   logger.set_log_level(config.log_level)
 
   if config.open_fn then

@@ -1,3 +1,9 @@
+--- @class Logger
+--- @field log_level string|number: The log level to use for the logger instance. Can be a string or a vim.log.levels enum value.
+--- @field debug fun(...): nil Writes a debug message to vim.notify, if the current log level is "debug".
+--- @field info fun(...): nil Writes a debug message to vim.notify, if the current log level is "debug".
+--- @field warn fun(...): nil Writes a debug message to vim.notify, if the current log level is "debug".
+--- @field error fun(...): nil Writes a debug message to vim.notify, if the current log level is "debug".
 local L = {}
 local plugin_name = "gx-extended"
 
@@ -17,7 +23,10 @@ local function to_print(...)
   end
 end
 
+--- Creates a new logger instance.
+--- @return Logger: The logger instance.
 function L:new(obj_and_config)
+  -- TODO: fix this? This might be a bad idea. The same object we're setting the class to is the object passed in as a config. Feels like it should be a new object instead and the config should just be the config.
   obj_and_config = obj_and_config or {}
 
   self = vim.tbl_deep_extend("force", self, obj_and_config)
