@@ -3,6 +3,7 @@ local M = {}
 function M.setup(config)
   require("gx-extended.lib").register {
     patterns = { "*.tf" },
+    name = "terraform aws resources",
     match_to_url = function(line_string)
       local resource_name = string.match(line_string, 'resource "aws_([^"]*)"')
 
