@@ -3,6 +3,7 @@ local M = {}
 function M.setup(config)
   require("gx-extended.lib").register {
     patterns = { "*" },
+    name = "no-protocol-urls",
     match_to_url = function(line_string)
       local patterns_with_http_s = "(https?://[a-zA-Z0-9_/%-.~@#+=?&%%A-Fa-f]+)"
       local patterns_without_http_s = "([a-zA-Z0-9_/%-.~@#+%%A-Fa-f]+%.[a-zA-Z0-9_/%-.~@#+%%A-Fa-f%=?&]+)"
