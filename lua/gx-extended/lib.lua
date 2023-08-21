@@ -8,6 +8,7 @@ local registry = {}
 -- override with config.open_fn
 ---@param url string
 local function open_fn(url)
+  logger.debug("built-in open_fn called", url)
   vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
 end
 
@@ -60,14 +61,19 @@ local function run_match_to_urls()
     })
 
     if url and url ~= "nil" then
+      logger.debug("url is not nil, returning", url)
       return url
     end
+    logger.debug("url is nil, returning nil")
     return nil
   end
 
   local try_open = function(registration)
-    local pcall_succeeded, succeeded_url = call_match_to_url(registration)
-    if pcall_succeeded and succeeded_url then
+    local succeeded_url = call_match_to_url(registration)
+    logger.debug("try_open", { pcall_succeeded = pcall_succeeded, succeeded_url = succeeded_url })
+
+    if succeeded_url then
+      logger.debug("try_open succeeded, opening", { succeeded_url = succeeded_url })
       open(succeeded_url)
     end
   end
@@ -95,8 +101,12 @@ local function run_match_to_urls()
     for _, registration in ipairs(matched_registrations) do
       local succeeded_url = call_match_to_url(registration)
 
+      logger.debug("succeeded_url", { succeeded_url = succeeded_url })
+
       if succeeded_url then
-        table.insert(succeeded_urls, { registration = registration, url = succeeded_url })
+        local succeeded_registration = { registration = registration, url = succeeded_url }
+        logger.debug("adding to succeeded_urls", succeeded_registration)
+        table.insert(succeeded_urls, succeeded_registration)
       end
     end
 
@@ -131,12 +141,17 @@ local function run_match_to_urls()
   end
 end
 
+--- Sets up the URL opener module.
+---@class config table The configuration options.
+---@field log_level number The log level for the logger module.
+---@field open_fn fun(url: string) A function to open the URL.
 function M.setup(config)
   ---@diagnostic disable-next-line: missing-parameter
   logger.set_log_level(config.log_level)
 
   if config.open_fn then
     open_fn = config.open_fn
+    logger.debug("open_fn was overridden")
   end
   vim.keymap.set("n", "gx", run_match_to_urls, {})
 end
