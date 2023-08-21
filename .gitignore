@@ -26,4 +26,4 @@ plugin/
 tmp/
 node_modules/
 
-lua/.luarc.json
+**/.luarc.json
