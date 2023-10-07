@@ -35,7 +35,7 @@ local function run_match_to_urls()
     local file_pattern = vim.fn.glob2regpat(file_glob)
     local match = vim.fn.matchstr(current_file, file_pattern)
 
-    if match ~= "" then
+    if match ~= "" or file_pattern == ".*" then
       logger.debug(
         "Found match for current file pattern",
         { current_file = current_file, file_pattern = file_pattern, match = match }
