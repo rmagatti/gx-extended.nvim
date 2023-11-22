@@ -10,11 +10,6 @@ function M.setup(config)
 
       local url = string.match(line_string, patterns_with_http_s)
 
-      -- Validate that it starts with a valid-ish domain
-      if url and not string.match(url, "https?://%S+%.%S+%.[%w%.]+/?.*") then
-        return nil
-      end
-
       if not url then
         url = string.match(line_string, patterns_without_http_s)
         -- Validate that it starts with a valid-ish domain
