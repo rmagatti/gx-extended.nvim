@@ -2,7 +2,7 @@ local logger = require("gx-extended.logger"):new { log_level = vim.log.levels.IN
 
 local M = {}
 
----@type table<string, RegistrationSpec[]>
+---@type table<string, table<string, RegistrationSpec[]>>
 local registry = {}
 
 -- override with config.open_fn
@@ -27,24 +27,33 @@ local function run_match_to_urls()
 
   local line_string = vim.api.nvim_get_current_line()
   local url = nil
-  ---@type string[]
-  local matched_patterns = {}
+
+  ---@class Match
+  ---@field filetype string
+  ---@field file_glob string
+
+  ---@type Match[]
+  local matches = {}
   local current_file = vim.fn.expand "%:p"
 
-  for file_glob, _ in pairs(registry) do
-    local file_pattern = vim.fn.glob2regpat(file_glob)
-    local match = vim.fn.matchstr(current_file, file_pattern)
+  for filetype, globs in pairs(registry) do
+    if filetype == "*" or filetype == vim.bo.filetype then
+      for file_glob, _ in pairs(globs) do
+        local file_pattern = vim.fn.glob2regpat(file_glob)
+        local match = vim.fn.matchstr(current_file, file_pattern)
 
-    if match ~= "" or file_pattern == ".*" then
-      logger.debug(
-        "Found match for current file pattern",
-        { current_file = current_file, file_pattern = file_pattern, match = match }
-      )
-      table.insert(matched_patterns, file_glob)
+        if match ~= "" or file_pattern == ".*" then
+          logger.debug(
+            "Found match for current file pattern",
+            { current_file = current_file, file_pattern = file_pattern, match = match }
+          )
+          table.insert(matches, { filetype = filetype, file_glob = file_glob })
+        end
+      end
     end
   end
 
-  logger.debug { matched_patterns = matched_patterns }
+  logger.debug { matches = matches }
 
   ---@param registration RegistrationSpec
   ---@return string | nil
@@ -64,7 +73,7 @@ local function run_match_to_urls()
       logger.debug("url is not nil, returning", url)
       return url
     end
-    logger.debug("url is nil, returning nil")
+    logger.debug "url is nil, returning nil"
     return nil
   end
 
@@ -81,9 +90,9 @@ local function run_match_to_urls()
   ---@type RegistrationSpec[]
   local matched_registrations = {}
 
-  for _, matched_pattern in ipairs(matched_patterns) do
+  for _, match in ipairs(matches) do
     ---@type RegistrationSpec[]
-    local registrations = registry[matched_pattern]
+    local registrations = registry[match.filetype][match.file_glob]
     for _, registration in ipairs(registrations) do
       table.insert(matched_registrations, registration)
     end
@@ -111,7 +120,7 @@ local function run_match_to_urls()
     end
 
     if #succeeded_urls == 0 then
-      logger.info("No registrations succeeded")
+      logger.info "No registrations succeeded"
       return
     end
 
@@ -151,34 +160,42 @@ function M.setup(config)
 
   if config.open_fn then
     open_fn = config.open_fn
-    logger.debug("open_fn was overridden")
+    logger.debug "open_fn was overridden"
   end
   vim.keymap.set("n", "gx", run_match_to_urls, {})
 end
 
 ---@class RegistrationSpec
+---@field filetypes string[] The enumeration of supported filetypes
 ---@field patterns string[] A glob file pattern to match against the current file. See `:help glob()`.
 ---@field match_to_url fun(line_string: string): string | nil A function that takes the current line string and returns a url or nil.
 ---@field name string | nil A name to show in the select menu when multiple handlers are registered. This will be made required later on.
 
 ---@param options RegistrationSpec
 function M.register(options)
-  local patterns = options.patterns
+  local filetypes = options.filetypes or { "*" }
+  local patterns = options.patterns or { "*" }
   local match_to_url = options.match_to_url
   local name = options.name
 
-  for _, pattern in ipairs(patterns) do
-    if not registry[pattern] then
-      registry[pattern] = {}
+  for _, filetype in ipairs(filetypes) do
+    if not registry[filetype] then
+      registry[filetype] = {}
     end
-
-    table.insert(registry[pattern], {
-      match_to_url = match_to_url,
-      name = name,
-    })
+    for _, pattern in ipairs(patterns) do
+      if not registry[filetype][pattern] then
+        registry[filetype][pattern] = {}
+      end
+      table.insert(registry[filetype][pattern], {
+        match_to_url = match_to_url,
+        name = name,
+      })
+    end
   end
 
   logger.debug("registering", {
+    name = name,
+    filetypes = filetypes,
     patterns = patterns,
     match_to_url = match_to_url,
     registry = registry,
