@@ -154,6 +154,7 @@ function M.setup(config)
     logger.debug("open_fn was overridden")
   end
   vim.keymap.set("n", "gx", run_match_to_urls, {})
+  vim.keymap.set("v", "gx", run_match_to_urls, {})
 end
 
 ---@class RegistrationSpec
