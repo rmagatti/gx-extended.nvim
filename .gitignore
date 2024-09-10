@@ -27,3 +27,4 @@ tmp/
 node_modules/
 
 **/.luarc.json
+**/.DS_Store
