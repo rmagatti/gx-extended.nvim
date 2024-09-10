@@ -62,7 +62,7 @@ use {
 
 By default, gx-extended uses netrw to open urls. You can pass a custom open
 function to config to change this behaviour. For example, if you use
-`lazy.nvim`, you can configure gx-extended to use it's `open` function:
+`lazy.nvim`, you can configure gx-extended to use its `open` function:
 
 ```lua
 return { 'rmagatti/gx-extended.nvim',
@@ -72,11 +72,6 @@ return { 'rmagatti/gx-extended.nvim',
   }
 }
 ```
-
-## TODOs
-
-- Implement `visual` mode
-
 ### Inspiration/Alternatives
 
 https://github.com/stsewd/gx-extended.vim
