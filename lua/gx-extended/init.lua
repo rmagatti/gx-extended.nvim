@@ -19,6 +19,7 @@ function M.setup(config)
   require("gx-extended.extensions.terraform-google-resources").setup(config)
   require("gx-extended.extensions.no-protocol-urls").setup(config)
   require("gx-extended.extensions.cargo-toml").setup(config)
+  require("gx-extended.extensions.pypi-packages").setup(config)
 
   --- Setup user extensions
   require("gx-extended.extensions.user-extensions").setup(config)

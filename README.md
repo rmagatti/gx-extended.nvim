@@ -9,6 +9,7 @@ In Neovim, the `gx` mapping in normal mode allows you to navigate to the url und
 - `plugins.lua` - In packer.nvim's convention `plugins.lua` file, `gx` when cursor is under a plugin dependency, navigates to _https://github.com/[user/org]/[repo]_
 - `*.tf` - In a [terraform](https://www.terraform.io/) file, `gx` when cursor is under a [terraform resource definition](https://developer.hashicorp.com/terraform/language/resources) navigates to _https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/[resourceName]_. This works for both AWS and Google Cloud resources.
 - `Cargo.toml` - In a Cargo.toml file, gx on a line that contains a crate will take you to https://crates.io/crates/{{crate_name}}
+- `PyPI` - In a `Pipfile` or `requirements.txt` file, `gx` on a line that contains a package spec will take you to https://pypi.org/project/{{package}}
 - `*` - In any file, `gx` navigates to no-protocol-urls like `google.com`, `docs.google.com`, etc.
 
 ## 🚀 Showcase
