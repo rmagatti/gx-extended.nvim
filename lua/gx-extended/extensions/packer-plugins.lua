@@ -5,8 +5,8 @@ function M.setup(config)
     patterns = { "*plugins.lua" },
     name = "neovim plugins",
     match_to_url = function(line_string)
-      local line = string.match(line_string, "[\"|'].*/.*[\"|']")
-      local repo = vim.split(line, ":")[1]:gsub("[\"|']", "")
+      local line = string.match(line_string, "[\"'][%w._-]+/[%w._-]+[\"']")
+      local repo = vim.split(line, ":")[1]:gsub("[\"']", "")
       local url = "https://github.com/" .. repo
 
       if not line or not repo then
