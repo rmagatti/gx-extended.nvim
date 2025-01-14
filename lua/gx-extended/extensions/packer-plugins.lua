@@ -2,7 +2,7 @@ local M = {}
 
 function M.setup(config)
   require("gx-extended.lib").register {
-    patterns = { "*plugins.lua" },
+    patterns = { "*plugins.lua", "*/plugins/**.lua" },
     name = "neovim plugins",
     match_to_url = function(line_string)
       local line = string.match(line_string, "[\"'][%w._-]+/[%w._-]+[\"']")
