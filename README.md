@@ -33,7 +33,8 @@ use {
 
 You can pass custom extensions to the `extensions` table. Each extension should have at least two properties:
 
-1. `patterns`: a list of file glob patterns to run the autocommands for
+1. `patterns`: a list of file glob patterns to run the autocommands for.
+Example: `patterns = { '*/plugins/**.lua' }` matches any Lua file inside `plugins/` or its sub-directories. See `:help wildcards` for how file glob wildcards are expanded
    - **Important:** The plugin matches the glob on the file path of the current file now; meaning for example that setting `plugins.lua` won't match correctly but `*plugins.lua` will.
 2. `match_to_url`: a function to run the match and return the composed url to be used by the `gx` command
 3. `name`: the name to be shown in a picker in case of handler/extension conflicts
@@ -46,14 +47,15 @@ use {
   config = function()
     require("gx-extended").setup {
       extensions = {
-        { -- match github repos in lazy.nvim plugin specs
-          patterns = { '*/plugins/**/*.lua' },
-          name = "neovim plugins",
+      -- Do not create this extension, the terraform resource setup is already built-into the plugin. This is merely an example of a user-defined extension.
+        {
+          patterns = { "*.tf" },
           match_to_url = function(line_string)
-            local line = string.match(line_string, '["|\'].*/.*["|\']')
-            local repo = vim.split(line, ':')[1]:gsub('["|\']', '')
-            local url = 'https://github.com/' .. repo
-            return line and repo and url or nil
+            -- Hint: `:help lua-patterns`
+            local resource_name = string.match(line_string, 'resource "aws_([^"]*)"')
+            local url = "https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/" .. resource_name
+
+            return url
           end,
         }
       },
