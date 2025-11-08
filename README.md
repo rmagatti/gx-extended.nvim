@@ -24,6 +24,7 @@
 ### ✨ Highlights
 
 - 🚀 **19 built-in handlers** — npm, cargo, docker, terraform, git, and more
+- 🎯 **Deterministic ordering** — Predictable priority system (first defined = first checked)
 - 🎁 **4 optional power features** — NPM imports, GitHub permalinks, Jira, Linear
 - 🔧 **Zero config needed** — Works out of the box
 - 🎨 **Fully extensible** — Add your own patterns easily
@@ -300,9 +301,16 @@ Extensions are checked in **registration order**:
 
 **First match wins!** If multiple match, you get a menu.
 
-### Deterministic Ordering
+### Deterministic Ordering ⭐
 
-Unlike other plugins that use random ordering, gx-extended checks patterns in the order they're defined. This makes behavior **predictable and configurable**.
+**Key improvement:** Extensions are checked in the exact order they're registered. No more random behavior!
+
+This means:
+- **Predictable** — Same pattern always wins
+- **Configurable** — Control priority by registration order
+- **Debuggable** — Easy to understand what's happening
+
+Example: File-specific handlers are registered first, so they always take priority over generic patterns.
 
 ---
 
@@ -317,20 +325,10 @@ Unlike other plugins that use random ordering, gx-extended checks patterns in th
 
 ---
 
-## 🙏 Credits
+## 🙏 Credits & Inspiration
 
-### Inspiration
-
-- [stsewd/gx-extended.vim](https://github.com/stsewd/gx-extended.vim) — The original gx-extended
-- [chrishrb/gx.nvim](https://github.com/chrishrb/gx.nvim) — Another excellent implementation
-
-### Why gx-extended.nvim?
-
-- ✅ More features than alternatives
-- ✅ Better architecture (deterministic ordering)
-- ✅ Cleaner API for extensions
-- ✅ Comprehensive documentation
-- ✅ Active maintenance
+- [stsewd/gx-extended.vim](https://github.com/stsewd/gx-extended.vim) — The original gx-extended for Vim
+- [chrishrb/gx.nvim](https://github.com/chrishrb/gx.nvim) — Another excellent Neovim implementation
 
 ---
 
