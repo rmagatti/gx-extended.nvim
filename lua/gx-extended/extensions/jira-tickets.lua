@@ -2,8 +2,8 @@ local M = {}
 
 local match_to_url = function(line_string)
     -- Match Jira ticket pattern: PROJECT-123
-    -- Pattern: One or more uppercase letters, dash, one or more digits
-    local ticket = string.match(line_string, "([A-Z][A-Z0-9]*%-%d+)")
+    -- Pattern: At least 2 uppercase letters/digits, dash, one or more digits
+    local ticket = string.match(line_string, "([A-Z][A-Z0-9]+%-%d+)")
 
     if not ticket or #ticket > 20 then
         return nil

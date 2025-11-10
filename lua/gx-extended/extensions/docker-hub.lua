@@ -19,11 +19,11 @@ local match_to_url = function(line_string)
     end
 
     -- Match official images: FROM nginx:tag or FROM nginx
-    local official = string.match(line_string, "FROM%s+([%w._-]+):")
+    local official = string.match(line_string, "FROM%s+([^/:]+):")
 
     if not official then
         -- Match: FROM nginx (no tag)
-        official = string.match(line_string, "FROM%s+([%w._-]+)%s*$")
+        official = string.match(line_string, "FROM%s+([^/:]+)%s*$")
     end
 
     if official then
@@ -31,10 +31,10 @@ local match_to_url = function(line_string)
     end
 
     -- Match official images in docker-compose: image: nginx:tag
-    official = string.match(line_string, "image:%s+([%w._-]+):")
+    official = string.match(line_string, "image:%s+([^/:]+):")
 
     if not official then
-        official = string.match(line_string, "image:%s+([%w._-]+)%s*$")
+        official = string.match(line_string, "image:%s+([^/:]+)%s*$")
     end
 
     if official then

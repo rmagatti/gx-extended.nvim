@@ -51,11 +51,11 @@ function M.setup(config)
     require("gx-extended.extensions.python-pep").setup(config)
 
     --- Optional: Issue tracking systems (require configuration)
-    if M.config.enable_jira_tickets or vim.g.gx_jira_url or os.getenv("JIRA_URL") then
+    if M.config.enable_jira_tickets ~= false and (vim.g.gx_jira_url or os.getenv("JIRA_URL")) then
         require("gx-extended.extensions.jira-tickets").setup(config)
     end
 
-    if M.config.enable_linear_issues or vim.g.gx_linear_team or os.getenv("LINEAR_TEAM") then
+    if M.config.enable_linear_issues ~= false and (vim.g.gx_linear_team or os.getenv("LINEAR_TEAM")) then
         require("gx-extended.extensions.linear-issues").setup(config)
     end
 

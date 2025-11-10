@@ -32,10 +32,20 @@ local function get_git_remote()
 end
 
 local match_to_url = function(line_string)
-    -- Match 7-40 character hex strings (git SHA)
-    local sha = string.match(line_string, "(%x%x%x%x%x%x%x+)")
+    -- Match 7-40 character hex strings (git SHA) with word boundaries, not preceded by '#'
+    local sha
+    for s in string.gmatch(line_string, "%f[%w]%x%x%x%x%x%x%x+%f[%W]") do
+        if #s >= 7 and #s <= 40 then
+            -- Check that the match is not preceded by '#'
+            local start_pos = line_string:find(s, 1, true)
+            if start_pos == 1 or line_string:sub(start_pos - 1, start_pos - 1) ~= "#" then
+                sha = s
+                break
+            end
+        end
+    end
 
-    if not sha or #sha < 7 or #sha > 40 then
+    if not sha then
         return nil
     end
 
