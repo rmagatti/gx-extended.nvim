@@ -3,7 +3,7 @@ local M = {}
 local match_to_url = function(line_string)
     -- Match Linear issue pattern: TEAM-123
     -- Pattern: One or more uppercase letters, dash, one or more digits
-    local issue = string.match(line_string, "([A-Z][A-Z0-9]+%-%d+)")
+    local issue = string.match(line_string, "([A-Z][A-Z0-9]*%-%d+)")
 
     if not issue or #issue > 20 then
         return nil

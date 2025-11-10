@@ -23,6 +23,11 @@ local match_to_url = function(line_string)
         return nil
     end
 
+    -- Skip parent directory references (contains ..)
+    if package_name:match("%.%.") then
+        return nil
+    end
+
     -- Handle scoped packages (@org/package) - extract just the package part
     local scoped_package = string.match(package_name, "^(@[%w_-]+/[%w_-]+)")
     if scoped_package then

@@ -1,42 +1,84 @@
 local M = {}
 
-local match_to_url = function(line_string)
-    -- This extension works differently - it doesn't match on line content
-    -- Instead, it always returns a URL if we're in a git repo
+-- Cache git info per buffer to avoid repeated git calls
+local function get_git_info()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local filepath = vim.fn.expand("%:p")
+
+    -- Check if cache exists and is for the current file
+    if vim.b[bufnr].gx_git_cache and vim.b[bufnr].gx_git_cache.filepath == filepath then
+        return vim.b[bufnr].gx_git_cache
+    end
 
     -- Check if we're in a git repository
     local is_git_repo = vim.fn.system("git rev-parse --is-inside-work-tree 2>/dev/null"):match("true")
     if not is_git_repo then
-        return nil
+        vim.b[bufnr].gx_git_cache = {
+            is_git_repo = false,
+            filepath = filepath,
+        }
+        return vim.b[bufnr].gx_git_cache
     end
 
     -- Get the git remote URL
     local remote = vim.fn.system("git config --get remote.origin.url 2>/dev/null")
     if not remote or remote == "" then
-        return nil
+        vim.b[bufnr].gx_git_cache = {
+            is_git_repo = false,
+            filepath = filepath,
+        }
+        return vim.b[bufnr].gx_git_cache
     end
-
     remote = remote:gsub("%s+", "")
 
-    -- Get current file path relative to git root
-    local filepath = vim.fn.expand("%:p")
+    -- Get git root
     local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("%s+", "")
-
     if not git_root or git_root == "" then
-        return nil
+        vim.b[bufnr].gx_git_cache = {
+            is_git_repo = false,
+            filepath = filepath,
+        }
+        return vim.b[bufnr].gx_git_cache
     end
-
-    -- Calculate relative path
-    local relative_path = filepath:gsub("^" .. vim.pesc(git_root) .. "/", "")
-
-    -- Get current line number
-    local line_number = vim.api.nvim_win_get_cursor(0)[1]
 
     -- Get current branch
     local branch = vim.fn.system("git rev-parse --abbrev-ref HEAD 2>/dev/null"):gsub("%s+", "")
     if not branch or branch == "" then
         branch = "main" -- fallback
     end
+
+    -- Cache the info
+    vim.b[bufnr].gx_git_cache = {
+        is_git_repo = true,
+        remote = remote,
+        git_root = git_root,
+        branch = branch,
+        filepath = filepath,
+    }
+
+    return vim.b[bufnr].gx_git_cache
+end
+
+local match_to_url = function(line_string)
+    -- This extension works differently - it doesn't match on line content
+    -- Instead, it always returns a URL if we're in a git repo
+
+    -- Get cached git info for this buffer
+    local info = get_git_info()
+    if not info.is_git_repo then
+        return nil
+    end
+
+    local remote = info.remote
+    local git_root = info.git_root
+    local branch = info.branch
+    local filepath = info.filepath
+
+    -- Calculate relative path
+    local relative_path = filepath:gsub("^" .. vim.pesc(git_root) .. "/", "")
+
+    -- Get current line number
+    local line_number = vim.api.nvim_win_get_cursor(0)[1]
 
     -- Parse different git remote formats
     local org, repo

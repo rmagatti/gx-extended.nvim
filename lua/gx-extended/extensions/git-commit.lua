@@ -1,5 +1,36 @@
 local M = {}
 
+-- Cache git remote URL per git root to avoid repeated git calls
+local remote_cache = {}
+
+local function get_git_remote()
+    -- Get git root to use as cache key
+    local git_root = vim.fn.system("git rev-parse --show-toplevel 2>/dev/null"):gsub("%s+", "")
+
+    if not git_root or git_root == "" then
+        return nil
+    end
+
+    -- Check cache
+    if remote_cache[git_root] then
+        return remote_cache[git_root]
+    end
+
+    -- Get git remote URL
+    local remote = vim.fn.system("git config --get remote.origin.url")
+
+    if not remote or remote == "" then
+        remote_cache[git_root] = false -- Cache negative result
+        return nil
+    end
+
+    remote = remote:gsub("%s+", "")
+
+    -- Cache the result
+    remote_cache[git_root] = remote
+    return remote
+end
+
 local match_to_url = function(line_string)
     -- Match 7-40 character hex strings (git SHA)
     local sha = string.match(line_string, "(%x%x%x%x%x%x%x+)")
@@ -8,14 +39,12 @@ local match_to_url = function(line_string)
         return nil
     end
 
-    -- Get git remote URL
-    local remote = vim.fn.system("git config --get remote.origin.url")
+    -- Get cached git remote URL
+    local remote = get_git_remote()
 
-    if not remote or remote == "" then
+    if not remote then
         return nil
     end
-
-    remote = remote:gsub("%s+", "")
 
     -- GitHub
     local repo = remote:match("github%.com[:/]([%w._-]+/[%w._-]+)")
