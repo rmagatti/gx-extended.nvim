@@ -1,0 +1,75 @@
+# Test file for gx-extended.nvim
+# Test brewfile extension by pressing gx on any brew or cask line
+
+# Tap repositories
+tap "homebrew/bundle"
+tap "homebrew/cask-fonts"
+
+# Core development tools
+brew "neovim"
+brew "git"
+brew "tmux"
+brew "zsh"
+brew "fzf"
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "eza"
+brew "starship"
+
+# Programming languages
+brew "node"
+brew "python@3.11"
+brew "go"
+brew "rust"
+brew "ruby"
+
+# Build tools
+brew "cmake"
+brew "make"
+brew "gcc"
+
+# Database tools
+brew "postgresql@15"
+brew "mysql"
+brew "redis"
+brew "sqlite"
+
+# Cloud & DevOps
+brew "terraform"
+brew "kubectl"
+brew "docker"
+brew "helm"
+brew "awscli"
+
+# Utilities
+brew "wget"
+brew "curl"
+brew "jq"
+brew "yq"
+brew "tree"
+brew "htop"
+brew "tldr"
+
+# Cask applications
+cask "visual-studio-code"
+cask "iterm2"
+cask "docker"
+cask "slack"
+cask "firefox"
+cask "google-chrome"
+cask "rectangle"
+cask "obsidian"
+cask "raycast"
+cask "discord"
+
+# Fonts
+cask "font-jetbrains-mono-nerd-font"
+cask "font-fira-code-nerd-font"
+cask "font-hack-nerd-font"
+
+# Design & productivity
+cask "figma"
+cask "notion"
+cask "zoom"
+cask "spotify"
