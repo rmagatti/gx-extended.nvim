@@ -11,8 +11,13 @@ local pattern_order = {}
 -- override with config.open_fn
 ---@param url string
 local function open_fn(url)
-    logger.debug("built-in open_fn called", url)
-    vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
+    if vim.ui.open then
+        logger.debug("built-in open_fn called, using vim.ui.open", url)
+        vim.ui.open(url)
+    else
+        logger.debug("built-in open_fn called, using netrw#BrowseX", url)
+        vim.api.nvim_call_function("netrw#BrowseX", { url, 0 })
+    end
 end
 
 ---@param url string | nil
