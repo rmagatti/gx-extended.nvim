@@ -92,6 +92,12 @@ local match_to_url = function(line_string)
         org, repo = remote:match("https?://[^/]+/([^/]+)/(.+)")
     end
 
+    if not org then
+        -- SSH with a non-default user, e.g. cert/org auth:
+        -- org-12345678@github.com:user/repo.git
+        org, repo = remote:match("[^@/]+@[^:]+:([^/]+)/(.+)")
+    end
+
     if not org or not repo then
         return nil
     end
