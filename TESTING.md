@@ -233,6 +233,11 @@ require('gx-extended').setup {
 
 **Note:** This generates a permalink to the exact line you're on!
 
+**Supported remote formats:** The parser handles all of these `remote.origin.url` forms:
+- SSH: `git@github.com:user/repo.git`
+- HTTPS: `https://github.com/user/repo.git`
+- SSH with a non-default user (e.g. SSH-certificate / Enterprise org auth): `org-12345678@github.com:user/repo.git`
+
 ### Jira Tickets (if configured)
 
 **Configure:**
